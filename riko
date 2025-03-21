@@ -1,0 +1,63 @@
+from flask import Flask, render_template, request, redirect, url_for
+import sqlite3
+
+app = Flask(__name__)
+
+# Initialize the database
+def init_db():
+    conn = sqlite3.connect("store.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS software (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        price REAL NOT NULL
+    )""")
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# Home route - Display software
+@app.route("/")
+def home():
+    conn = sqlite3.connect("store.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM software")
+    software_list = cursor.fetchall()
+    conn.close()
+    return render_template("index.html", software=software_list)
+
+# Add new software
+@app.route("/add", methods=["POST"])
+def add():
+    name = request.form["name"]
+    price = request.form["price"]
+    conn = sqlite3.connect("store.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO software (name, price) VALUES (?, ?)", (name, price))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("home"))
+
+if __name__ == "__main__":
+    app.run(debug=True)<!DOCTYPE html>
+<html>
+<head>
+    <title>Software Store</title>
+</head>
+<body>
+    <h1>Software Store</h1>
+    <form action="/add" method="post">
+        <input type="text" name="name" placeholder="Software Name" required>
+        <input type="number" step="0.01" name="price" placeholder="Price" required>
+        <button type="submit">Add Software</button>
+    </form>
+    <h2>Available Software</h2>
+    <ul>
+        {% for software in software %}
+            <li>{{ software[1] }} - ${{ software[2] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>python app.py

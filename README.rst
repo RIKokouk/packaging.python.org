@@ -1,5 +1,20 @@
 Python Packaging User Guide
-===========================
+===============   from telegram import Bot
+   from telegram.ext import Updater, CommandHandler
+
+   TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+
+   def start(update, context):
+       update.message.reply_text('مرحبًا! كيف يمكنني مساعدتك؟')
+
+   updater = Updater(TOKEN, use_context=True)
+   dp = updater.dispatcher
+
+   dp.add_handler(CommandHandler("start", start))
+
+   updater.start_polling()
+   updater.idle()
+   ============
 
 http://packaging.python.org
 
